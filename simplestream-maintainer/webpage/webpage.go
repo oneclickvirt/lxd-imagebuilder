@@ -81,18 +81,32 @@ func NewWebPage(rootDir string, catalog stream.ProductCatalog) (*WebPage, error)
 	// using a configuration file. In such case, we just have to parse
 	// those values and the rest of the code will work as expected.
 	page := WebPage{
-		Title:           "LXD Images",
-		FaviconURL:      "https://raw.githubusercontent.com/canonical/lxd/main/doc/.sphinx/_static/favicon.ico",
-		LogoURL:         "https://raw.githubusercontent.com/canonical/lxd/main/doc/.sphinx/_static/tag.png",
-		FooterCopyright: fmt.Sprintf("© %d Canonical Ltd.", time.Now().Year()),
-		FooterUpdatedAt: fmt.Sprintf("Last updated: %s UTC", time.Now().UTC().Format("02 Jan 2006 (15:04)")),
-		Paragraphs: []template.HTML{
-			template.HTML("Images hosted on this server are available in LXD through the predefined remote <code>images:</code>. For detailed instructions about LXD image management, please refer to our <a href='https://documentation.ubuntu.com/lxd/en/latest/howto/images_manage/'>How to Manage Images</a> guide in the official documentation."),
-			template.HTML("Images are built daily and we retain the last 2 successful builds of each image for up to 15 days. Thus, if a particular build fails on any given day, the previous successful builds will remain accessible."),
-			template.HTML("If you encounter any issues with the images hosted on our server or have suggestions for improvement, please let us know by <a href='https://github.com/canonical/lxd/issues/new'>opening an issue</a> in the LXD repository."),
-		},
-		Images: []WebPageImage{},
-	}
+		    Title:           "spiritlhl LXD Images",
+		    FaviconURL:      "https://cdn.spiritlhl.net/https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png",
+		    LogoURL:         "https://cdn.spiritlhl.net/https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png",
+		    FooterCopyright: fmt.Sprintf("© %d spiritlhl community.", time.Now().Year()),
+		    FooterUpdatedAt: fmt.Sprintf("Last updated: %s UTC", time.Now().UTC().Format("02 Jan 2006 (15:04)")),
+		    Paragraphs: []template.HTML{
+			template.HTML(`Images hosted on this server are available in LXD through the predefined remote <code>spiritlhl:</code>.<br>
+			<strong>Quick setup:</strong><br>
+			<pre>
+			lxc remote remove spiritlhl
+			lxc remote add spiritlhl https://lxdimages.spiritlhl.net --protocol simplestreams --public
+			lxc image list spiritlhl:debian
+			</pre>
+			For more usage examples, please refer to our
+			<a href='https://github.com/oneclickvirt/lxd_images' target='_blank'>GitHub project</a>
+			or join our <a href='https://t.me/spiritlhl' target='_blank'>Telegram group</a>.`),
+			template.HTML(`Images are built daily and we retain the last 2 successful builds of each image for up to 15 days.
+			Thus, if a particular build fails on any given day, the previous successful builds will remain accessible.`),
+			template.HTML(`If you encounter any issues with the images hosted on this server or have suggestions for improvement,
+			please let us know by <a href='https://github.com/oneclickvirt/lxd_images/issues/new' target='_blank'>opening an issue</a> on GitHub.<br>
+			<br>
+			<a href='https://www.spiritlhl.net/' target='_blank'>Visit spiritlhl main site</a>
+			`),
+		    },
+		    Images: []WebPageImage{},
+		}
 
 	// Sort productIds by name.
 	productIds := shared.MapKeys(catalog.Products)
