@@ -90,9 +90,11 @@ func NewWebPage(rootDir string, catalog stream.ProductCatalog) (*WebPage, error)
 			template.HTML(`Images hosted on this server are available in LXD through the predefined remote <code>spiritlhl:</code>.<br>
 			<strong>Quick setup:</strong><br>
 			<pre>
+lxc remote list
 lxc remote remove spiritlhl
 lxc remote add spiritlhl https://lxdimages.spiritlhl.net --protocol simplestreams --public
 lxc image list spiritlhl:debian
+lxc remote list
 			</pre>
 			For more usage examples, please refer to our
 			<a href='https://github.com/oneclickvirt/lxd_images' target='_blank'>GitHub project</a>
