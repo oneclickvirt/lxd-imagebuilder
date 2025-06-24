@@ -94,6 +94,7 @@ lxc remote list
 lxc remote remove spiritlhl
 lxc remote add spiritlhl https://lxdimages.spiritlhl.net --protocol simplestreams --public
 lxc image list spiritlhl:debian
+lxc remote switch spiritlhl
 lxc remote list
 			</pre>
 			For more usage examples, please refer to our
