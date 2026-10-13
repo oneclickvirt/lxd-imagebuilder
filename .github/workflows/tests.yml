@@ -1,21 +1,12 @@
 name: Tests
-on:
-  push:
-  pull_request:
-
 permissions:
   contents: read
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
-
 defaults:
   run:
-    # Make sure bash is always invoked with `-eo pipefail`
-    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsshell
     shell: bash
-
 jobs:
   code-tests:
     name: Code tests
@@ -23,66 +14,68 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-22.04
-          - ubuntu-24.04
+        - ubuntu-22.04
+        - ubuntu-24.04
     runs-on: ${{ matrix.os }}
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - name: Require GHA pinning
-        uses: canonical/lxd/.github/actions/require-gha-pinning@main
-
-      - name: Dependency Review
-        uses: actions/dependency-review-action@bc41886e18ea39df68b1b1245f4184881938e050 # v4.7.2
-        if: github.event_name == 'pull_request'
-
-      - name: Install Go
-        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
-        with:
-          go-version-file: go.mod
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get -qq update
-          sudo apt-get install -y --no-install-recommends squashfs-tools xdelta3
-
-      - name: Run static analysis
-        run: make static-analysis
-
-      - name: Unit tests (all)
-        run: make check
-
+    - name: Checkout code
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - name: Require GHA pinning
+      run: |
+        python3 - <<'PY'
+        import pathlib,re
+        for path in pathlib.Path('.github/workflows').glob('*.y*ml'):
+            for action in re.findall(r'uses:\s*([^\s#]+)',path.read_text()):
+                if not action.startswith(('./','docker://')) and not re.search(r'@[0-9a-f]{40}$',action):
+                    raise SystemExit('An external action is not pinned')
+        PY
+    - name: Dependency Review
+      uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+      if: github.event_name == 'pull_request'
+    - name: Install Go
+      uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      with:
+        go-version-file: go.mod
+    - name: Install dependencies
+      run: |
+        sudo apt-get -qq update
+        sudo apt-get install -y --no-install-recommends squashfs-tools xdelta3
+    - name: Run static analysis
+      run: make static-analysis
+    - name: Unit tests (all)
+      run: make check
   snap:
     name: Trigger snap edge build
     runs-on: ubuntu-24.04
-    needs: [code-tests]
-    if: ${{ github.repository == 'canonical/lxd-imagebuilder' && github.event_name == 'push' && github.actor != 'dependabot[bot]' }}
+    needs:
+    - code-tests
+    if: ${{ github.repository == 'canonical/lxd-imagebuilder' && github.event_name == 'push' && github.actor != 'dependabot[bot]'
+      }}
     env:
       SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-      PACKAGE: "lxd-imagebuilder"
-      REPO: "git+ssh://lxdbot@git.launchpad.net/~lxd-snap/lxd-imagebuilder"
-      BRANCH: >-
+      PACKAGE: lxd-imagebuilder
+      REPO: git+ssh://lxdbot@git.launchpad.net/~lxd-snap/lxd-imagebuilder
+      BRANCH: |-
         ${{ fromJson('{
-          "main": "latest-edge",
+          "main": "latest-edge"
         }')[github.ref_name] }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-
-      - uses: canonical/lxd/.github/actions/lp-snap-build@main
-        with:
-          ssh-key: "${{ secrets.LAUNCHPAD_LXD_BOT_KEY}}"
-
-      - name: Trigger Launchpad snap build
-        run: |
-          set -eux
-          echo "${PATH}"
-          localRev="$(git rev-parse HEAD)"
-          cd ~/"${PACKAGE}-pkg-snap-lp"
-          lxd-snapcraft -package "${PACKAGE}" -set-version "git-${localRev:0:7}" -set-source-commit "${localRev}"
-          git add --all
-          git commit --all --quiet -s --allow-empty -m "Automatic upstream build (${BRANCH})" -m "Upstream commit: ${localRev}"
-          git show
-          git push --quiet
+    - name: Checkout code
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - uses: canonical/lxd/.github/actions/lp-snap-build@85f897013ccdb0f8f44d434a3b655d2edcefcfae # lxd-6.9
+      with:
+        ssh-key: ${{ secrets.LAUNCHPAD_LXD_BOT_KEY}}
+    - name: Trigger Launchpad snap build
+      run: |
+        set -eux
+        echo "${PATH}"
+        localRev="$(git rev-parse HEAD)"
+        cd ~/"${PACKAGE}-pkg-snap-lp"
+        lxd-snapcraft -package "${PACKAGE}" -set-version "git-${localRev:0:7}" -set-source-commit "${localRev}"
+        git add --all
+        git commit --all --quiet -s --allow-empty -m "Automatic upstream build (${BRANCH})" -m "Upstream commit: ${localRev}"
+        git show
+        git push --quiet
+'on':
+  push: null
+  pull_request: null
