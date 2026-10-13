@@ -25,7 +25,7 @@ jobs:
         python3 - <<'PY'
         import pathlib,re
         for path in pathlib.Path('.github/workflows').glob('*.y*ml'):
-            for action in re.findall(r'uses:\s*([^\s#]+)',path.read_text()):
+            for action in re.findall(r'^\s*(?:-\s*)?uses:\s*([^\s#]+)',path.read_text(),re.M):
                 if not action.startswith(('./','docker://')) and not re.search(r'@[0-9a-f]{40}$',action):
                     raise SystemExit('An external action is not pinned')
         PY
