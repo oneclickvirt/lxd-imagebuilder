@@ -1,16 +1,50 @@
 name: Documentation checks
-
-on:
-  - push
-  - pull_request
-  - workflow_dispatch
-
+'on':
+  push: null
+  pull_request: null
+  workflow_dispatch: null
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  PIP_DEFAULT_TIMEOUT: '45'
+  PIP_RETRIES: '3'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   documentation-checks:
-    uses: canonical/documentation-workflows/.github/workflows/documentation-checks.yaml@a40be455965cb08dcb48ff67042555a0f83a8de5 # main
-    with:
-      working-directory: 'doc'
+    name: Documentation / ${{ matrix.check }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        check:
+        - spelling
+        - inclusive-language
+        - links
+    steps:
+    - name: Checkout documentation
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        fetch-depth: 0
+    - name: Set up current Python
+      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      with:
+        python-version: '3.12'
+    - name: Check spelling
+      if: matrix.check == 'spelling'
+      uses: canonical/documentation-workflows/spellcheck@a40be455965cb08dcb48ff67042555a0f83a8de5
+      with:
+        working-directory: doc
+    - name: Check inclusive-language
+      if: matrix.check == 'inclusive-language'
+      uses: canonical/documentation-workflows/inclusive-language@a40be455965cb08dcb48ff67042555a0f83a8de5
+      with:
+        working-directory: doc
+    - name: Check links
+      if: matrix.check == 'links'
+      uses: canonical/documentation-workflows/linkcheck@a40be455965cb08dcb48ff67042555a0f83a8de5
+      with:
+        working-directory: doc

@@ -219,3 +219,8 @@ rst_prolog = '''
 .. role:: center
    :class: align-center
 '''
+
+# Bound transient upstream failures while continuing to reject broken links.
+linkcheck_timeout = 45
+linkcheck_retries = 3
+linkcheck_rate_limit_timeout = 60
