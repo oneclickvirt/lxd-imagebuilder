@@ -44,13 +44,15 @@ jobs:
       run: make static-analysis
     - name: Unit tests (all)
       run: make check
+    env:
+      GOPROXY: https://proxy.golang.org|direct
   snap:
     name: Trigger snap edge build
     runs-on: ubuntu-24.04
     needs:
     - code-tests
-    if: ${{ github.repository == 'canonical/lxd-imagebuilder' && github.event_name == 'push' && github.actor != 'dependabot[bot]'
-      }}
+    if: ${{ github.repository == 'canonical/lxd-imagebuilder' && github.event_name == 'push' && github.actor !=
+      'dependabot[bot]' }}
     env:
       SSH_AUTH_SOCK: /tmp/ssh_agent.sock
       PACKAGE: lxd-imagebuilder
