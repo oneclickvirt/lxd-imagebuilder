@@ -35,11 +35,19 @@ jobs:
     - name: Install Go
       uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
       with:
-        go-version-file: go.mod
+        go-version: stable
     - name: Install dependencies
       run: |
         sudo apt-get -qq update
         sudo apt-get install -y --no-install-recommends squashfs-tools xdelta3
+    - name: Build pinned linter from checksum-verified Go modules
+      env:
+        GOBIN: ${{ runner.temp }}/linter-tools
+      run: |
+        set -euo pipefail
+        mkdir -p "$GOBIN"
+        go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.14.0
+        echo "$GOBIN" >> "$GITHUB_PATH"
     - name: Run static analysis
       run: make static-analysis
     - name: Unit tests (all)
@@ -81,3 +89,4 @@ jobs:
 'on':
   push: null
   pull_request: null
+  workflow_dispatch: null
