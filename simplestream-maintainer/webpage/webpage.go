@@ -81,12 +81,12 @@ func NewWebPage(rootDir string, catalog stream.ProductCatalog) (*WebPage, error)
 	// using a configuration file. In such case, we just have to parse
 	// those values and the rest of the code will work as expected.
 	page := WebPage{
-		    Title:           "spiritlhl LXD Images",
-		    FaviconURL:      "https://cdn.spiritlhl.net/https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png",
-		    LogoURL:         "https://cdn.spiritlhl.net/https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png",
-		    FooterCopyright: fmt.Sprintf("© %d spiritlhl community.", time.Now().Year()),
-		    FooterUpdatedAt: fmt.Sprintf("Last updated: %s UTC", time.Now().UTC().Format("02 Jan 2006 (15:04)")),
-		    Paragraphs: []template.HTML{
+		Title:           "spiritlhl LXD Images",
+		FaviconURL:      "https://cdn.spiritlhl.net/https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png",
+		LogoURL:         "https://cdn.spiritlhl.net/https://raw.githubusercontent.com/spiritlhls/pages/main/logo.png",
+		FooterCopyright: fmt.Sprintf("© %d spiritlhl community.", time.Now().Year()),
+		FooterUpdatedAt: fmt.Sprintf("Last updated: %s UTC", time.Now().UTC().Format("02 Jan 2006 (15:04)")),
+		Paragraphs: []template.HTML{
 			template.HTML(`Images hosted on this server are available in LXD through the predefined remote <code>spiritlhl:</code>.<br>
 			<strong>Quick setup:</strong><br>
 			<pre>
@@ -106,9 +106,9 @@ lxc remote list
 			<br>
 			<a href='https://www.spiritlhl.net/' target='_blank'>Visit spiritlhl main site</a>
 			`),
-		    },
-		    Images: []WebPageImage{},
-		}
+		},
+		Images: []WebPageImage{},
+	}
 
 	// Sort productIds by name.
 	productIds := shared.MapKeys(catalog.Products)
